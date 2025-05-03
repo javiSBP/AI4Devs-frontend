@@ -78,3 +78,13 @@ Prompt:
 ```
 implement now a drag and drop system to move candidates into the different interview steps of the position
 ```
+
+---
+
+### Removing hover effect from kanban columns
+
+Prompt:
+
+```
+Remove the card:hover effect from the @KanbanColumn.tsx
+```

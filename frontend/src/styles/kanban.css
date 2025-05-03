@@ -38,7 +38,9 @@
   transition: all 0.2s ease-in-out;
 }
 
-.card:hover {
+/* Remove the hover transform effect */
+/* Only apply hover effect to candidate cards, not the column cards */
+.candidate-card:hover {
   transform: translateY(-2px);
 }
 
