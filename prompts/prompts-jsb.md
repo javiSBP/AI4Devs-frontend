@@ -48,3 +48,13 @@ Prompt:
 ```
 improve to position screen styles to make it more appealing while keeping the overall project style
 ```
+
+---
+
+### Fixing rating circles size consistency
+
+Prompt:
+
+```
+there is an issue with the size of the filled rating vs. the empty in the @CandidateCard.tsx . Can you increase filled style to be the same size as the empty one?
+```

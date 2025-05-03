@@ -9,6 +9,12 @@ export interface CandidateCardProps {
 }
 
 const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
+  // Common styles for rating circles
+  const circleStyle = {
+    fontSize: "16px",
+    marginRight: "2px",
+  };
+
   // Generate rating circles
   const renderRating = () => {
     const circles = [];
@@ -17,11 +23,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
     // Fill green circles for the rating
     for (let i = 0; i < rating; i++) {
       circles.push(
-        <span
-          key={`filled-${i}`}
-          className="text-success"
-          style={{ fontSize: "14px", marginRight: "2px" }}
-        >
+        <span key={`filled-${i}`} className="text-success" style={circleStyle}>
           ●
         </span>
       );
@@ -33,7 +35,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
         <span
           key={`empty-${i}`}
           className="text-muted opacity-25"
-          style={{ fontSize: "14px", marginRight: "2px" }}
+          style={circleStyle}
         >
           ○
         </span>
