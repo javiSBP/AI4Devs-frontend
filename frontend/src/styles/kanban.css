@@ -1,0 +1,65 @@
+/* Custom Kanban Board Styles */
+
+/* Light background colors for column headers */
+.bg-light-primary {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+}
+
+.bg-light-info {
+  background-color: rgba(13, 202, 240, 0.1) !important;
+}
+
+.bg-light-warning {
+  background-color: rgba(255, 193, 7, 0.1) !important;
+}
+
+.bg-light-success {
+  background-color: rgba(25, 135, 84, 0.1) !important;
+}
+
+.bg-light-subtle {
+  background-color: #f8f9fa !important;
+}
+
+/* Dashed border for empty candidate containers */
+.border-dashed {
+  border-style: dashed !important;
+  border-width: 1px !important;
+  border-color: #dee2e6 !important;
+}
+
+/* Kanban board styles */
+.kanban-board {
+  min-height: 70vh;
+}
+
+/* Smooth transition effects */
+.card {
+  transition: all 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Column header styling */
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Make badges more subtle */
+.badge {
+  font-weight: 500;
+}
+
+/* Media queries for responsive layout */
+@media (max-width: 768px) {
+  .kanban-board {
+    overflow-x: auto;
+  }
+  
+  .container-fluid {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+} 

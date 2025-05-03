@@ -12,6 +12,8 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
   // Generate rating circles
   const renderRating = () => {
     const circles = [];
+    const maxRating = 5;
+
     // Fill green circles for the rating
     for (let i = 0; i < rating; i++) {
       circles.push(
@@ -25,14 +27,27 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
       );
     }
 
+    // Add empty circles for the remaining slots
+    for (let i = rating; i < maxRating; i++) {
+      circles.push(
+        <span
+          key={`empty-${i}`}
+          className="text-muted opacity-25"
+          style={{ fontSize: "14px", marginRight: "2px" }}
+        >
+          ○
+        </span>
+      );
+    }
+
     return <div>{circles}</div>;
   };
 
   return (
-    <Card className="mb-2 shadow-sm">
+    <Card className="mb-2 shadow-sm border-0 cursor-pointer candidate-card">
       <Card.Body className="p-3">
         <div className="d-flex flex-column">
-          <div className="fw-bold">{name}</div>
+          <div className="fw-bold mb-1">{name}</div>
           {renderRating()}
         </div>
       </Card.Body>

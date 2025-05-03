@@ -38,3 +38,13 @@ now you are an experienced frontend software engineer with expertise in UI desig
 - On next steps we will implement API integration so the screen gets the actual interview step columns and candidates current interview step.
 - Think a plan before acting and proceed step by step.
 ```
+
+---
+
+### Improving the position screen styling
+
+Prompt:
+
+```
+improve to position screen styles to make it more appealing while keeping the overall project style
+```
