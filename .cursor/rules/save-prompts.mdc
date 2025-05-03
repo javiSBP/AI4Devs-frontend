@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Copy each exact prompt I write to prompts/prompts-jsb.md file using markdown format. Create the file on the root of the project if it doesn't exist. Separate each prompt from the previous one using a markdown separator followed by a generated title for the new prompt.
