@@ -58,3 +58,13 @@ Prompt:
 ```
 there is an issue with the size of the filled rating vs. the empty in the @CandidateCard.tsx . Can you increase filled style to be the same size as the empty one?
 ```
+
+---
+
+### Using emojis for rating indicators
+
+Prompt:
+
+```
+still having the issue maybe it's related to the font. try another strategy like using emoji.
+```

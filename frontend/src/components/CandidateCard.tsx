@@ -11,11 +11,10 @@ export interface CandidateCardProps {
 const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
   // Common styles for rating circles
   const circleStyle = {
-    fontSize: "16px",
     marginRight: "2px",
   };
 
-  // Generate rating circles
+  // Generate rating circles using emojis
   const renderRating = () => {
     const circles = [];
     const maxRating = 5;
@@ -24,7 +23,7 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
     for (let i = 0; i < rating; i++) {
       circles.push(
         <span key={`filled-${i}`} className="text-success" style={circleStyle}>
-          ●
+          🟢
         </span>
       );
     }
@@ -32,17 +31,13 @@ const CandidateCard: React.FC<CandidateCardProps> = ({ name, rating }) => {
     // Add empty circles for the remaining slots
     for (let i = rating; i < maxRating; i++) {
       circles.push(
-        <span
-          key={`empty-${i}`}
-          className="text-muted opacity-25"
-          style={circleStyle}
-        >
-          ○
+        <span key={`empty-${i}`} className="text-muted" style={circleStyle}>
+          ⚪
         </span>
       );
     }
 
-    return <div>{circles}</div>;
+    return <div className="d-flex">{circles}</div>;
   };
 
   return (
