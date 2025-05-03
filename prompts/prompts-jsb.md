@@ -68,3 +68,13 @@ Prompt:
 ```
 still having the issue maybe it's related to the font. try another strategy like using emoji.
 ```
+
+---
+
+### Implementing drag and drop for candidates
+
+Prompt:
+
+```
+implement now a drag and drop system to move candidates into the different interview steps of the position
+```
