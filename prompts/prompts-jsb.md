@@ -332,6 +332,14 @@ GET /position/:id/candidates
 - use @services folder to call the endpoints
 - do not implement any other endpoint, we will proceed step by step
 
+---
+
+## Updating Kanban Column Colors
+
+```
+change @getHeaderStyle to assign a color by ID to a maximum of 10 cases depending on the ID instead of the title
+```
+
 ```
 
 ```

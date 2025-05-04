@@ -22,23 +22,35 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
-  // Define colors based on the column title
-  const getHeaderStyle = (title: string) => {
-    switch (title) {
-      case "Llamada telefónica":
+  // Define colors based on the column ID instead of title
+  const getHeaderStyle = (columnId: number) => {
+    switch (columnId) {
+      case 1:
         return { bgColor: "bg-light-primary", textColor: "primary" };
-      case "Entrevista técnica":
+      case 2:
         return { bgColor: "bg-light-info", textColor: "info" };
-      case "Entrevista cultural":
+      case 3:
         return { bgColor: "bg-light-warning", textColor: "warning" };
-      case "Entrevista manager":
+      case 4:
         return { bgColor: "bg-light-success", textColor: "success" };
+      case 5:
+        return { bgColor: "bg-light-danger", textColor: "danger" };
+      case 6:
+        return { bgColor: "bg-light-secondary", textColor: "secondary" };
+      case 7:
+        return { bgColor: "bg-light-dark", textColor: "dark" };
+      case 8:
+        return { bgColor: "bg-light-primary", textColor: "primary" };
+      case 9:
+        return { bgColor: "bg-light-info", textColor: "info" };
+      case 10:
+        return { bgColor: "bg-light-warning", textColor: "warning" };
       default:
         return { bgColor: "bg-light", textColor: "secondary" };
     }
   };
 
-  const headerStyle = getHeaderStyle(title);
+  const headerStyle = getHeaderStyle(columnIndex);
 
   // Set up drop handling
   const [{ isOver, canDrop }, drop] = useDrop({
