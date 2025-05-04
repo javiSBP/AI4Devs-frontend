@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Card } from "react-bootstrap";
-import { useDrag, useDrop } from "react-dnd";
+import { useDrag } from "react-dnd";
 
 export type CandidateRating = 1 | 2 | 3 | 4 | 5;
 

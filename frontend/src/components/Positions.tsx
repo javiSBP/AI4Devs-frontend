@@ -3,6 +3,7 @@ import { Card, Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 type Position = {
+  id: string;
   title: string;
   manager: string;
   deadline: string;
@@ -11,18 +12,21 @@ type Position = {
 
 const mockPositions: Position[] = [
   {
+    id: "1",
     title: "Senior Backend Engineer",
     manager: "John Doe",
     deadline: "2024-12-31",
     status: "Abierto",
   },
   {
+    id: "2",
     title: "Junior Android Engineer",
     manager: "Jane Smith",
     deadline: "2024-11-15",
     status: "Contratado",
   },
   {
+    id: "3",
     title: "Product Manager",
     manager: "Alex Jones",
     deadline: "2024-07-31",
@@ -33,9 +37,10 @@ const mockPositions: Position[] = [
 const Positions: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleViewProcess = (positionTitle: string) => {
-    // Use the position title as the route parameter
-    navigate(`/positions/${encodeURIComponent(positionTitle)}`);
+  const handleViewProcess = (positionId: string) => {
+    // Use the position ID as the route parameter instead of title
+    console.log(`Navigating to position details for ID: ${positionId}`);
+    navigate(`/positions/${positionId}`);
   };
 
   return (
@@ -93,7 +98,7 @@ const Positions: React.FC = () => {
                 <div className="d-flex justify-content-between mt-3">
                   <Button
                     variant="primary"
-                    onClick={() => handleViewProcess(position.title)}
+                    onClick={() => handleViewProcess(position.id)}
                   >
                     Ver proceso
                   </Button>

@@ -88,3 +88,204 @@ Prompt:
 ```
 Remove the card:hover effect from the @KanbanColumn.tsx
 ```
+
+---
+
+### Integrating with backend API for interview steps
+
+Prompt:
+
+````
+now, let's integrate the positions kanban with the backend. The endpoints have been already developed so there is only frontend work to do. First let's get the interview steps that will match the columns of the kanban.
+
+## backend endpoint interface
+
+GET /positions/:id/interviewFlow
+
+## backend response example
+
+```json
+{
+      "positionName": "Senior backend engineer",
+      "interviewFlow": {
+
+              "id": 1,
+              "description": "Standard development interview process",
+              "interviewSteps": [
+                  {
+                      "id": 1,
+                      "interviewFlowId": 1,
+                      "interviewTypeId": 1,
+                      "name": "Initial Screening",
+                      "orderIndex": 1
+                  },
+                  {
+                      "id": 2,
+                      "interviewFlowId": 1,
+                      "interviewTypeId": 2,
+                      "name": "Technical Interview",
+                      "orderIndex": 2
+                  },
+                  {
+                      "id": 3,
+                      "interviewFlowId": 1,
+                      "interviewTypeId": 3,
+                      "name": "Manager Interview",
+                      "orderIndex": 2
+                  }
+              ]
+          }
+  }
+````
+
+## relevant information
+
+- poistionName: This gives the position title
+- interviewSteps: This gives the number of columns, the id of the interview step and the name of the interview step
+
+## technical requirements
+
+- check @routes directory to check the route and backend implementation
+- use @services folder to call the endpoints
+- do not implement any other endpoint, we will proceed step by step
+
+```
+
+---
+
+### Fixing missing dependencies and unused imports
+
+Prompt:
+
+```
+
+fix this errors
+
+```
+
+---
+
+### Fixing 404 Not Found error when fetching interview flow
+
+Prompt:
+
+```
+
+I am having this error in browser console when calling the backend for route
+http://localhost:3010/positions/Senior%20Backend%20Engineer/interviewflow,
+`404 Not Found` and I see the attached image on screen
+
+```
+
+---
+
+### Debugging API call to backend
+
+Prompt:
+
+```
+
+Still having the 404 issue, can you check if the frontend route call matches the backend route?
+
+```
+
+---
+
+### Fixing singular/plural route mismatch
+
+Prompt:
+
+```
+
+check also routes on @index.ts to see if it matches frontend
+
+```
+
+---
+
+### Setting up Prisma seed configuration
+
+Prompt:
+
+```
+
+add prisma:seed to project
+
+```
+
+---
+
+### Fixing map of undefined error in API response
+
+Prompt:
+
+```
+
+npw the API call is working but I get this error in browser:
+
+```
+PositionDetails.tsx:146 Error fetching interview flow: TypeError: Cannot read properties of undefined (reading 'map')
+    at fetchInterviewFlow (PositionDetails.tsx:113:1)
+fetchInterviewFlow	@	PositionDetails.tsx:146
+await in fetchInterviewFlow
+(anonymous)	@	PositionDetails.tsx:153
+```
+
+```
+
+---
+
+### Project Summary: AI4Devs-frontend
+
+Prompt:
+
+```
+
+# Project Summary: AI4Devs-frontend
+
+This conversation involved developing a frontend application for a talent tracking system with React. The main focus was creating a position screen with a kanban board to manage candidates through different interview stages.
+
+## Key Development Steps:
+
+1. **Initial Project Understanding**
+
+   - Analyzed project structure (React frontend, Express backend with Prisma ORM)
+   - Identified key directories and files
+   - Reviewed code conventions and dependencies
+
+2. **Position Screen Development**
+
+   - Created a responsive kanban board layout
+   - Implemented components: PositionDetails, KanbanColumn, CandidateCard
+   - Added back navigation and proper styling
+
+3. **UI Enhancements**
+
+   - Improved visual styling with cards, shadows, and color-coding
+   - Fixed rating indicators using emojis
+   - Added responsive design for mobile devices
+
+4. **Drag and Drop Implementation**
+
+   - Added React DnD for candidate movement between columns
+   - Created context for state management
+   - Implemented visual feedback during drag operations
+
+5. **Backend Integration**
+
+   - Connected to API endpoints for interview flow data
+   - Fixed route path issues (singular vs plural)
+   - Added proper error handling and fallback mechanisms
+   - Fixed TypeScript typing issues with nested API response structure
+
+6. **Bug Fixes**
+   - Resolved 404 errors by correcting API endpoint paths
+   - Fixed TypeScript errors with proper interface definitions
+   - Added data validation to handle unexpected API responses
+   - Installed missing dependencies
+
+The final implementation is a functional kanban board that displays interview stages from the backend API, allows drag-and-drop movement of candidates between stages, and handles various edge cases gracefully.
+
+```
+
+```
