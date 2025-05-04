@@ -340,6 +340,50 @@ GET /position/:id/candidates
 change @getHeaderStyle to assign a color by ID to a maximum of 10 cases depending on the ID instead of the title
 ```
 
+---
+
+## Implementing candidate interview stage updates
+
+````
+The last endpoint updates the interview step of the candidate when is moved (drag'n drop) to a different interview step
+
+## backend endpoint interface
+
+PUT /candidates/:id/stage
+
+## body data
+{
+     "applicationId": "1",
+     "currentInterviewStep": "3"
+ }
+
+where:
+- applicationId: The candidate application number
+- currentInterviewStep: The new interview step for the application
+
+## backend response example
+
+```json
+{
+    "message": "Candidate stage updated successfully",
+     "data": {
+         "id": 1,
+         "positionId": 1,
+         "candidateId": 1,
+         "applicationDate": "2024-06-04T13:34:58.304Z",
+         "currentInterviewStep": 3,
+         "notes": null,
+         "interviews": []
+     }
+ }
+````
+
+## technical requirements
+
+- check @candidateRoutes.ts because the /stage slug may be missing in the route
+- use @services folder to call the endpoints
+- do not implement any other endpoint, this is the last one
+
 ```
 
 ```

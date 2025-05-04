@@ -7,6 +7,8 @@ import {
   Card,
   Spinner,
   Alert,
+  Toast,
+  ToastContainer,
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, PersonPlus } from "react-bootstrap-icons";
@@ -18,6 +20,7 @@ import {
   getInterviewFlow,
   getPositionCandidates,
 } from "../services/positionService";
+import { updateCandidateStage } from "../services/candidateService";
 import "../styles/kanban.css";
 
 // Interface for interview step data from the API
@@ -52,9 +55,11 @@ interface ApiResponse {
 
 // Interface for candidate from API
 interface Candidate {
+  id?: number;
   fullName: string;
   currentInterviewStep: string;
   averageScore: number;
+  applicationId?: number;
 }
 
 // Interface for our processed position data for the kanban
@@ -85,6 +90,16 @@ const PositionDetails: React.FC = () => {
   );
   const [positionTitle, setPositionTitle] = useState<string>("");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [showToast, setShowToast] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<{
+    title: string;
+    content: string;
+    variant: "success" | "danger" | "warning";
+  }>({
+    title: "",
+    content: "",
+    variant: "success",
+  });
 
   useEffect(() => {
     const fetchPositionData = async () => {
@@ -246,6 +261,7 @@ const PositionDetails: React.FC = () => {
         if (columnIndex !== -1) {
           // Create a CandidateCardProps object from the candidate data
           const candidateCard: CandidateCardProps = {
+            id: candidate.id?.toString(),
             name: candidate.fullName,
             rating:
               candidate.averageScore >= 1 && candidate.averageScore <= 5
@@ -253,6 +269,7 @@ const PositionDetails: React.FC = () => {
                 : 1,
             index: kanbanData.columns[columnIndex].candidates.length,
             columnIndex: columnId,
+            applicationId: candidate.applicationId,
           };
 
           // Add candidate to appropriate column
@@ -273,53 +290,115 @@ const PositionDetails: React.FC = () => {
     return column ? column.id : null;
   };
 
+  // Helper function to display toast messages
+  const showMessage = (
+    title: string,
+    content: string,
+    variant: "success" | "danger" | "warning" = "success"
+  ) => {
+    setToastMessage({ title, content, variant });
+    setShowToast(true);
+  };
+
   // Handle moving candidates between columns
-  const handleMoveCandidate = (
+  const handleMoveCandidate = async (
     candidateIndex: number,
     fromColumn: number,
     toColumn: number
   ) => {
     if (!positionData) return;
 
-    setPositionData((prevData) => {
-      if (!prevData) return prevData;
-
-      // Create a new copy of the data
-      const newData = { ...prevData };
-      const newColumns = [...newData.columns];
-
-      // Find the source and destination columns by their array indexes
-      const sourceColumnIndex = newColumns.findIndex(
+    try {
+      // Find the source column by ID
+      const sourceColumnIndex = positionData.columns.findIndex(
         (col) => col.id === fromColumn
       );
-      const destColumnIndex = newColumns.findIndex(
-        (col) => col.id === toColumn
+
+      if (sourceColumnIndex === -1) return;
+
+      // Get the candidate being moved
+      const candidate =
+        positionData.columns[sourceColumnIndex].candidates[candidateIndex];
+
+      if (!candidate.id) {
+        console.error("Cannot update candidate without ID");
+        showMessage(
+          "Error",
+          "No se pudo actualizar el candidato: falta ID",
+          "danger"
+        );
+        return;
+      }
+
+      // Update UI first (optimistic update)
+      setPositionData((prevData) => {
+        if (!prevData) return prevData;
+
+        // Create a new copy of the data
+        const newData = { ...prevData };
+        const newColumns = [...newData.columns];
+
+        // Find the source and destination columns by their array indexes
+        const sourceColumnIndex = newColumns.findIndex(
+          (col) => col.id === fromColumn
+        );
+        const destColumnIndex = newColumns.findIndex(
+          (col) => col.id === toColumn
+        );
+
+        if (sourceColumnIndex === -1 || destColumnIndex === -1) return prevData;
+
+        // Get the candidate to move
+        const candidate = {
+          ...newColumns[sourceColumnIndex].candidates[candidateIndex],
+          columnIndex: toColumn, // Update the column index
+        };
+
+        // Remove candidate from source column
+        newColumns[sourceColumnIndex] = {
+          ...newColumns[sourceColumnIndex],
+          candidates: newColumns[sourceColumnIndex].candidates.filter(
+            (_, index) => index !== candidateIndex
+          ),
+        };
+
+        // Add candidate to destination column
+        newColumns[destColumnIndex] = {
+          ...newColumns[destColumnIndex],
+          candidates: [...newColumns[destColumnIndex].candidates, candidate],
+        };
+
+        newData.columns = newColumns;
+        return newData;
+      });
+
+      // Then update the backend
+      await updateCandidateStage(
+        candidate.id,
+        candidate.applicationId || "1", // Fallback to "1" if not available
+        toColumn.toString()
       );
 
-      if (sourceColumnIndex === -1 || destColumnIndex === -1) return prevData;
+      showMessage(
+        "Actualización exitosa",
+        `${candidate.name} movido a la fase ${
+          positionData.columns.find((col) => col.id === toColumn)?.title
+        }`,
+        "success"
+      );
+    } catch (error: any) {
+      console.error("Error updating candidate stage:", error);
 
-      // Get the candidate to move
-      const candidate = {
-        ...newColumns[sourceColumnIndex].candidates[candidateIndex],
-      };
+      // Show error message
+      showMessage(
+        "Error al actualizar",
+        error.message || "No se pudo actualizar la etapa del candidato",
+        "danger"
+      );
 
-      // Remove candidate from source column
-      newColumns[sourceColumnIndex] = {
-        ...newColumns[sourceColumnIndex],
-        candidates: newColumns[sourceColumnIndex].candidates.filter(
-          (_, index) => index !== candidateIndex
-        ),
-      };
-
-      // Add candidate to destination column
-      newColumns[destColumnIndex] = {
-        ...newColumns[destColumnIndex],
-        candidates: [...newColumns[destColumnIndex].candidates, candidate],
-      };
-
-      newData.columns = newColumns;
-      return newData;
-    });
+      // Revert the UI change if needed
+      // You could implement a rollback here
+    }
   };
 
   // Show loading state while fetching data
@@ -371,6 +450,31 @@ const PositionDetails: React.FC = () => {
     <DndProvider backend={HTML5Backend}>
       <div className="bg-light min-vh-100">
         <Container fluid className="py-4">
+          <ToastContainer
+            position="top-end"
+            className="p-3"
+            style={{ zIndex: 1050 }}
+          >
+            <Toast
+              bg={toastMessage.variant}
+              onClose={() => setShowToast(false)}
+              show={showToast}
+              delay={3000}
+              autohide
+            >
+              <Toast.Header>
+                <strong className="me-auto">{toastMessage.title}</strong>
+              </Toast.Header>
+              <Toast.Body
+                className={
+                  toastMessage.variant === "danger" ? "text-white" : ""
+                }
+              >
+                {toastMessage.content}
+              </Toast.Body>
+            </Toast>
+          </ToastContainer>
+
           <Card className="shadow-sm mb-4">
             <Card.Body>
               <div className="d-flex align-items-center justify-content-between">

@@ -10,6 +10,7 @@ export interface CandidateCardProps {
   rating: CandidateRating;
   index: number;
   columnIndex: number;
+  applicationId?: number;
   moveCandidate?: (
     dragIndex: number,
     fromColumn: number,
@@ -23,10 +24,12 @@ export const ItemTypes = {
 };
 
 const CandidateCard: React.FC<CandidateCardProps> = ({
+  id,
   name,
   rating,
   index,
   columnIndex,
+  applicationId,
   moveCandidate,
 }) => {
   // Common styles for rating circles
@@ -41,10 +44,12 @@ const CandidateCard: React.FC<CandidateCardProps> = ({
     type: ItemTypes.CANDIDATE,
     item: {
       type: ItemTypes.CANDIDATE,
+      id,
       index,
       columnIndex,
       name,
       rating,
+      applicationId,
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
