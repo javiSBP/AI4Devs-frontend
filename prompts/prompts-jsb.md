@@ -286,6 +286,52 @@ This conversation involved developing a frontend application for a talent tracki
 
 The final implementation is a functional kanban board that displays interview stages from the backend API, allows drag-and-drop movement of candidates between stages, and handles various edge cases gracefully.
 
+````
+
+---
+
+## Integrating Candidates API
+
+The next endpoint gets information of the candidates applying for a position ID. So it returns the candidates to show on @CandidateCard.tsx.
+
+## backend endpoint interface
+
+GET /position/:id/candidates
+
+## backend response example
+
+```json
+[
+      {
+           "fullName": "Jane Smith",
+           "currentInterviewStep": "Technical Interview",
+           "averageScore": 4
+       },
+       {
+           "fullName": "Carlos García",
+           "currentInterviewStep": "Initial Screening",
+           "averageScore": 0
+       },
+       {
+           "fullName": "John Doe",
+           "currentInterviewStep": "Manager Interview",
+           "averageScore": 5
+      }
+ ]
+````
+
+## relevant information
+
+- **name**: Full name of the candidate
+- **current_interview_step**: current phase of the candidate in the interview flow.
+- **score**: Average candidate score
+
+## technical requirements
+
+- check @backend/routes directory to check the route and backend implementation
+- use @services folder to call the endpoints
+- do not implement any other endpoint, we will proceed step by step
+
 ```
 
 ```

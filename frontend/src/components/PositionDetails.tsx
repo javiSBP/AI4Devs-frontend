@@ -14,7 +14,10 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import KanbanColumn from "./KanbanColumn";
 import { CandidateCardProps } from "./CandidateCard";
-import { getInterviewFlow } from "../services/positionService";
+import {
+  getInterviewFlow,
+  getPositionCandidates,
+} from "../services/positionService";
 import "../styles/kanban.css";
 
 // Interface for interview step data from the API
@@ -47,6 +50,13 @@ interface ApiResponse {
   };
 }
 
+// Interface for candidate from API
+interface Candidate {
+  fullName: string;
+  currentInterviewStep: string;
+  averageScore: number;
+}
+
 // Interface for our processed position data for the kanban
 interface KanbanPositionData {
   title: string;
@@ -64,24 +74,6 @@ const POSITION_ID_MAP: Record<string, string> = {
   "Product Manager": "3",
 };
 
-// Temporary mock candidates data - will be replaced with API data later
-interface SimpleCandidateData {
-  name: string;
-  rating: 1 | 2 | 3 | 4 | 5;
-}
-
-const mockCandidatesByStep: Record<number, SimpleCandidateData[]> = {
-  1: [
-    { name: "John Doe", rating: 3 },
-    { name: "Alice Johnson", rating: 4 },
-  ],
-  2: [{ name: "Jane Smith", rating: 3 }],
-  3: [
-    { name: "Bob Brown", rating: 2 },
-    { name: "Eva White", rating: 5 },
-  ],
-};
-
 const PositionDetails: React.FC = () => {
   const navigate = useNavigate();
   const { positionId } = useParams<{ positionId: string }>();
@@ -92,9 +84,10 @@ const PositionDetails: React.FC = () => {
     null
   );
   const [positionTitle, setPositionTitle] = useState<string>("");
+  const [candidates, setCandidates] = useState<Candidate[]>([]);
 
   useEffect(() => {
-    const fetchInterviewFlow = async () => {
+    const fetchPositionData = async () => {
       try {
         setLoading(true);
         setError(null);
@@ -108,64 +101,64 @@ const PositionDetails: React.FC = () => {
         // Save the position title for display
         setPositionTitle(positionId || "Position");
 
-        // Get interview flow data from the backend
-        const response = (await getInterviewFlow(numericId)) as ApiResponse;
+        // Fetch both interview flow and candidates in parallel
+        const [interviewFlowResponse, candidatesResponse] = await Promise.all([
+          getInterviewFlow(numericId) as Promise<ApiResponse>,
+          getPositionCandidates(numericId) as Promise<Candidate[]>,
+        ]);
 
         console.log(
-          "Raw API response data:",
-          JSON.stringify(response, null, 2)
+          "Raw API response data (interview flow):",
+          JSON.stringify(interviewFlowResponse, null, 2)
         );
 
+        console.log(
+          "Raw API response data (candidates):",
+          JSON.stringify(candidatesResponse, null, 2)
+        );
+
+        // Save candidates data
+        setCandidates(candidatesResponse || []);
+
         // Handle case where API returns unexpected structure
-        if (!response) {
+        if (!interviewFlowResponse) {
           throw new Error("No data received from server");
         }
 
         // Access the nested structure from the response
-        if (!response.interviewFlow) {
+        if (!interviewFlowResponse.interviewFlow) {
           console.warn(
             "API response missing interviewFlow property:",
-            response
+            interviewFlowResponse
           );
 
-          // Create a fallback interview flow with mock data
+          // Create a fallback interview flow with default columns
           const fallbackData: KanbanPositionData = {
             title: positionTitle || "Position Details",
             columns: [
               {
                 id: 1,
                 title: "Initial Screening",
-                candidates:
-                  mockCandidatesByStep[1]?.map((candidate, index) => ({
-                    ...candidate,
-                    index,
-                    columnIndex: 1,
-                  })) || [],
+                candidates: [],
               },
               {
                 id: 2,
                 title: "Technical Interview",
-                candidates:
-                  mockCandidatesByStep[2]?.map((candidate, index) => ({
-                    ...candidate,
-                    index,
-                    columnIndex: 2,
-                  })) || [],
+                candidates: [],
               },
               {
                 id: 3,
                 title: "Manager Interview",
-                candidates:
-                  mockCandidatesByStep[3]?.map((candidate, index) => ({
-                    ...candidate,
-                    index,
-                    columnIndex: 3,
-                  })) || [],
+                candidates: [],
               },
             ],
           };
 
           setPositionData(fallbackData);
+
+          // Map candidates to their respective columns even with fallback data
+          mapCandidatesToColumns(fallbackData, candidatesResponse || []);
+
           console.log(
             "Using fallback data due to missing interview flow:",
             fallbackData
@@ -174,7 +167,8 @@ const PositionDetails: React.FC = () => {
         }
 
         // Extract the nested data
-        const { positionName, interviewFlow } = response.interviewFlow;
+        const { positionName, interviewFlow } =
+          interviewFlowResponse.interviewFlow;
 
         if (
           !interviewFlow ||
@@ -183,7 +177,7 @@ const PositionDetails: React.FC = () => {
         ) {
           console.warn(
             "API response missing or invalid interviewSteps:",
-            response.interviewFlow
+            interviewFlowResponse.interviewFlow
           );
           throw new Error("Invalid interview steps data received from server");
         }
@@ -192,19 +186,10 @@ const PositionDetails: React.FC = () => {
         const kanbanData: KanbanPositionData = {
           title: positionName || positionTitle,
           columns: interviewFlow.interviewSteps.map((step: InterviewStep) => {
-            // Get mock candidates for this step and add required props
-            const candidates = (mockCandidatesByStep[step.id] || []).map(
-              (candidate, index) => ({
-                ...candidate,
-                index,
-                columnIndex: step.id,
-              })
-            );
-
             return {
               id: step.id,
               title: step.name,
-              candidates,
+              candidates: [],
             };
           }),
         };
@@ -220,17 +205,73 @@ const PositionDetails: React.FC = () => {
           return (stepA?.orderIndex || 0) - (stepB?.orderIndex || 0);
         });
 
+        // Map candidates to columns based on currentInterviewStep
+        mapCandidatesToColumns(kanbanData, candidatesResponse || []);
+
         setPositionData(kanbanData);
       } catch (err: any) {
-        console.error("Error fetching interview flow:", err);
+        console.error("Error fetching position data:", err);
         setError(err.message || "Failed to load position data");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchInterviewFlow();
+    fetchPositionData();
   }, [positionId]);
+
+  // Map candidates to their respective columns based on currentInterviewStep
+  const mapCandidatesToColumns = (
+    kanbanData: KanbanPositionData,
+    candidatesList: Candidate[]
+  ) => {
+    // Create a column title to id mapping
+    const columnMap = new Map(
+      kanbanData.columns.map((column) => [column.title, column.id])
+    );
+
+    // Process each candidate
+    candidatesList.forEach((candidate, index) => {
+      // Find the column ID that matches the candidate's currentInterviewStep
+      const columnId = findColumnIdByTitle(
+        kanbanData.columns,
+        candidate.currentInterviewStep
+      );
+
+      if (columnId !== null) {
+        const columnIndex = kanbanData.columns.findIndex(
+          (col) => col.id === columnId
+        );
+
+        if (columnIndex !== -1) {
+          // Create a CandidateCardProps object from the candidate data
+          const candidateCard: CandidateCardProps = {
+            name: candidate.fullName,
+            rating:
+              candidate.averageScore >= 1 && candidate.averageScore <= 5
+                ? (candidate.averageScore as 1 | 2 | 3 | 4 | 5)
+                : 1,
+            index: kanbanData.columns[columnIndex].candidates.length,
+            columnIndex: columnId,
+          };
+
+          // Add candidate to appropriate column
+          kanbanData.columns[columnIndex].candidates.push(candidateCard);
+        }
+      }
+    });
+
+    setPositionData({ ...kanbanData });
+  };
+
+  // Helper function to find column ID by title
+  const findColumnIdByTitle = (
+    columns: KanbanPositionData["columns"],
+    title: string
+  ): number | null => {
+    const column = columns.find((col) => col.title === title);
+    return column ? column.id : null;
+  };
 
   // Handle moving candidates between columns
   const handleMoveCandidate = (
