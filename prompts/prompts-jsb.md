@@ -386,4 +386,16 @@ where:
 
 ```
 
+---
+
+### Fixing position ID bug affecting API requests
+
+Prompt:
+
+```
+
+there is a bug because despite of being in the screen for the position 2 (http://localhost:3000/positions/2) the requests performed for interviewFlow and candidates are related to position 1
+
+```
+
 ```

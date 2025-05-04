@@ -107,9 +107,9 @@ const PositionDetails: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // Use the position title to get a numeric ID or default to "1"
-        // In a real app, you would use an API to convert titles to IDs or use IDs directly
-        const numericId = positionId ? POSITION_ID_MAP[positionId] || "1" : "1";
+        // Use the positionId directly from the URL params
+        // This fixes the bug where position 2 was showing data from position 1
+        const numericId = positionId || "1";
 
         console.log(`Fetching interview flow for position ID: ${numericId}`);
 
