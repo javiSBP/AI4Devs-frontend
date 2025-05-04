@@ -220,6 +220,22 @@ const PositionDetails: React.FC = () => {
           return (stepA?.orderIndex || 0) - (stepB?.orderIndex || 0);
         });
 
+        // If there are no interview steps but we have candidates, add a fallback column
+        if (
+          kanbanData.columns.length === 0 &&
+          candidatesResponse &&
+          candidatesResponse.length > 0
+        ) {
+          console.log(
+            "No interview steps found but there are candidates. Adding fallback column."
+          );
+          kanbanData.columns.push({
+            id: 999, // Use a unique ID that won't conflict with real steps
+            title: "Interviews not yet programmed",
+            candidates: [],
+          });
+        }
+
         // Map candidates to columns based on currentInterviewStep
         mapCandidatesToColumns(kanbanData, candidatesResponse || []);
 
@@ -275,6 +291,25 @@ const PositionDetails: React.FC = () => {
           // Add candidate to appropriate column
           kanbanData.columns[columnIndex].candidates.push(candidateCard);
         }
+      } else if (kanbanData.columns.length > 0) {
+        // If we can't find a matching column but we have at least one column
+        // (either a real column or our fallback), put the candidate in the first column
+        const fallbackColumnIndex = 0;
+        const fallbackColumn = kanbanData.columns[fallbackColumnIndex];
+
+        const candidateCard: CandidateCardProps = {
+          id: candidate.id?.toString(),
+          name: candidate.fullName,
+          rating:
+            candidate.averageScore >= 1 && candidate.averageScore <= 5
+              ? (candidate.averageScore as 1 | 2 | 3 | 4 | 5)
+              : 1,
+          index: fallbackColumn.candidates.length,
+          columnIndex: fallbackColumn.id,
+          applicationId: candidate.applicationId,
+        };
+
+        fallbackColumn.candidates.push(candidateCard);
       }
     });
 

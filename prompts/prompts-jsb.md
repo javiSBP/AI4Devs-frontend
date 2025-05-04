@@ -398,4 +398,16 @@ there is a bug because despite of being in the screen for the position 2 (http:/
 
 ```
 
+---
+
+### Adding fallback column for positions without interview steps
+
+Prompt:
+
+```
+
+for position 2 there is 1 candidate but since there are no interviewSteps for the interviewFlow, the screen shows "0 candidatos en proceso". Modify the position details so in case there are no interview steps there is a fallback column "Interviews not yet programmed" where candidate can be shown
+
+```
+
 ```
